@@ -17,7 +17,6 @@ import com.example.runningservice.repository.CrewMemberRepository;
 import com.example.runningservice.repository.JoinApplicationRepository;
 import com.example.runningservice.repository.MemberRepository;
 import com.example.runningservice.repository.crew.CrewRepository;
-import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -144,20 +143,20 @@ public class UserJoinService {
     private void isJoinPossible(MemberEntity memberEntity, CrewEntity crewEntity) {
 
         Gender requiredGender = crewEntity.getGender();
-        Integer minAge = crewEntity.getMinAge();
-        Integer maxAge = crewEntity.getMaxAge();
+        Integer minYear = crewEntity.getMinYear();
+        Integer maxYear = crewEntity.getMaxYear();
         Long memberId = memberEntity.getId();
         Long crewId = crewEntity.getId();
         Boolean recordOpen = crewEntity.getRunRecordOpen();
         // 나이 제한 있으면 검증
-        if (minAge != null || maxAge != null) {
+        if (minYear != null || maxYear != null) {
             //나이 검증
-            validateAge(memberEntity, crewEntity, minAge, maxAge);
+            validateAge(memberEntity, maxYear, minYear);
         }
         // 성별 제한 있으면 검증
         if (requiredGender != null) {
             // 성별 검증
-            validateGender(memberEntity, crewEntity, requiredGender);
+            validateGender(memberEntity, requiredGender);
         }
         // 기록공개여부 검증
         if (recordOpen != null && recordOpen) {
@@ -182,29 +181,26 @@ public class UserJoinService {
             });
     }
 
-    private void validateAge(MemberEntity memberEntity, CrewEntity crewEntity, Integer minAge,
-        Integer maxAge) {
+    private void validateAge(MemberEntity memberEntity, Integer maxYear, Integer minYear) {
 
-        if (minAge != null || maxAge != null) {
-            if (memberEntity.getBirthYear() == null) {
+        if (maxYear != null || minYear != null) {
+            Integer memberBirtYear = memberEntity.getBirthYear();
+            if (memberBirtYear == null) {
                 throw new CustomException(ErrorCode.AGE_REQUIRED);
             }
 
-            int memberAge = LocalDate.now().getYear() - memberEntity.getBirthYear() + 1; //한국나이
-            if (minAge != null && memberAge < minAge) {
+            if (maxYear != null && memberBirtYear <= maxYear) {
                 throw new CustomException(ErrorCode.AGE_RESTRICTION_NOT_MET);
             }
 
-            if (maxAge != null && memberAge > maxAge) {
+            if (minYear != null && memberBirtYear >= minYear) {
                 throw new CustomException(ErrorCode.AGE_RESTRICTION_NOT_MET);
             }
         }
     }
 
-    private void validateGender(MemberEntity memberEntity, CrewEntity crewEntity,
-        Gender requiredGender) {
+    private void validateGender(MemberEntity memberEntity, Gender requiredGender) {
         Gender memberGender = memberEntity.getGender();
-        Visibility memberGenderVisibility = memberEntity.getGenderVisibility();
 
         if (requiredGender != null) {
             if (memberGender == null) {
