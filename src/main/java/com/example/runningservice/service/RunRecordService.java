@@ -47,11 +47,15 @@ public class RunRecordService {
         RunGoalEntity goal = runGoalRepository.findById(requestDto.getGoalId())
             .orElseThrow(() -> new NoSuchElementException("목표를 찾을 수 없습니다."));
 
+        // 00:00:00 형태의 String으로 온 러닝타임 수정
+        String[] runningTimes= requestDto.getRunningTime().split(":");
+        int runningTimeSec = Integer.parseInt(runningTimes[0])*3600+ Integer.parseInt(runningTimes[1])*60 + Integer.parseInt(runningTimes[2]);
+
         RunRecordEntity runRecordEntity = RunRecordEntity.builder()
             .userId(member)
             .goalId(goal)
             .distance(requestDto.getDistance())
-            .runningTime(requestDto.getRunningTime())
+            .runningTime(runningTimeSec)
             .pace(requestDto.getPace())
             .createdAt(LocalDateTime.now())
             .updatedAt(LocalDateTime.now())
@@ -67,12 +71,16 @@ public class RunRecordService {
             .findById(runningId)
             .orElseThrow(() -> new NoSuchElementException("해당 기록을 찾을 수 없습니다."));
 
+        // 00:00:00 형태의 String으로 온 러닝타임 수정
+        String[] runningTimes= requestDto.getRunningTime().split(":");
+        int runningTimeSec = Integer.parseInt(runningTimes[0])*3600+ Integer.parseInt(runningTimes[1])*60 + Integer.parseInt(runningTimes[2]);
+
         RunRecordEntity updatedEntity = RunRecordEntity.builder()
             .id(existingEntity.getId())
             .userId(existingEntity.getUserId())
             .goalId(runGoalRepository.getReferenceById(requestDto.getGoalId()))
             .distance(requestDto.getDistance())
-            .runningTime(requestDto.getRunningTime())
+            .runningTime(runningTimeSec)
             .pace(requestDto.getPace())
             .createdAt(existingEntity.getCreatedAt())
             .updatedAt(LocalDateTime.now())

@@ -96,7 +96,7 @@ public class RunRecordServiceTest {
         RunRecordRequestDto requestDto = RunRecordRequestDto.builder()
             .goalId(goalId)
             .distance(150)
-            .runningTime(1800)
+            .runningTime("00:18:00")
             .pace(Duration.ofMinutes(6))
             .isPublic(1)
             .build();
@@ -117,12 +117,16 @@ public class RunRecordServiceTest {
             .isPublic(0)
             .build();
 
+        // 00:00:00 형태의 String으로 온 러닝타임 수정
+        String[] runningTimes= requestDto.getRunningTime().split(":");
+        int runningTimeSec = Integer.parseInt(runningTimes[0])*3600+ Integer.parseInt(runningTimes[1])*60 + Integer.parseInt(runningTimes[2]);
+
         RunRecordEntity updatedEntity = RunRecordEntity.builder()
             .id(runningId)
             .userId(memberEntity)
             .goalId(existingEntity.getGoalId())
             .distance(requestDto.getDistance())
-            .runningTime(requestDto.getRunningTime())
+            .runningTime(runningTimeSec)
             .pace(requestDto.getPace())
             .createdAt(existingEntity.getCreatedAt())
             .updatedAt(LocalDateTime.now())
@@ -134,16 +138,18 @@ public class RunRecordServiceTest {
 
         RunRecordResponseDto responseDto = runRecordService.updateRunRecord(runningId, requestDto);
 
+
+
         assertNotNull(responseDto);
         assertEquals(requestDto.getDistance(), responseDto.getDistance());
-        assertEquals(requestDto.getRunningTime(), responseDto.getRunningTime());
+        assertEquals(runningTimeSec, responseDto.getRunningTime());
         assertEquals(requestDto.getPace(), responseDto.getPace());
 
         // Verify that the save method was called with the updated entity
         verify(runRecordRepository).save(argThat(entity ->
             entity.getId().equals(runningId) &&
                 entity.getDistance().equals(requestDto.getDistance()) &&
-                entity.getRunningTime().equals(requestDto.getRunningTime()) &&
+                entity.getRunningTime().equals(runningTimeSec) &&
                 entity.getPace().equals(requestDto.getPace())
         ));
     }
@@ -200,7 +206,7 @@ public class RunRecordServiceTest {
         return RunRecordRequestDto.builder()
             .goalId(goalId)
             .distance(10)
-            .runningTime(1800)
+            .runningTime("00:18:00")
             .pace(Duration.ofMinutes(15))
             .isPublic(1)
             .build();

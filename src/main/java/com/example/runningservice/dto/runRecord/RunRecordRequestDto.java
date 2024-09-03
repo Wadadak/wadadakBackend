@@ -10,7 +10,7 @@ public class RunRecordRequestDto {
     private Long userId;
     private Long goalId;
     private Integer distance;
-    private Integer runningTime;
+    private String runningTime;
     private Duration pace;
     private Integer isPublic;
 }
