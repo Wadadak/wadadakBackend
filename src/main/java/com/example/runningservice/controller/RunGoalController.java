@@ -5,6 +5,7 @@ import com.example.runningservice.dto.runGoal.RunGoalResponseDto;
 import com.example.runningservice.service.RunGoalService;
 import com.example.runningservice.util.LoginUser;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,45 +22,43 @@ public class RunGoalController {
      */
     @GetMapping
     public ResponseEntity<List<RunGoalResponseDto>> getAllRunGoals() {
-        List<RunGoalResponseDto> runGoals = runGoalService.findAll();
-        return ResponseEntity.ok(runGoals);
-    }
-
-    /**
-     * 러닝 목표 조회
-     */
-    @GetMapping("/{runGoalId}")
-    public ResponseEntity<RunGoalResponseDto> getRunGoalById(@PathVariable Long runGoalId) {
-        RunGoalResponseDto runGoal = runGoalService.findById(runGoalId);
-        return ResponseEntity.ok(runGoal);
+        List<RunGoalResponseDto> responseDtoList = runGoalService.getAllRunGoals();
+        return ResponseEntity.ok(responseDtoList);
     }
 
     /**
      * 사용자 러닝 목표(전체) 조회
      */
     @GetMapping("/my")
-    public ResponseEntity<List<RunGoalResponseDto>> getRunGoalByUserId(@LoginUser Long loginId) {
-        List<RunGoalResponseDto> runGoals = runGoalService.findByUserId(loginId);
-        return ResponseEntity.ok(runGoals);
+    public ResponseEntity<List<RunGoalResponseDto>> getUserRunGoals(@LoginUser Long userId) {
+        List<RunGoalResponseDto> responseDtoList = runGoalService.getUserRunGoals(userId);
+        return ResponseEntity.ok(responseDtoList);
+    }
+
+    /**
+     * 러닝 목표 조회
+     */
+    @GetMapping("/{runGoalId}")
+    public ResponseEntity<RunGoalResponseDto> getRunGoal(@PathVariable Long runGoalId) {
+        RunGoalResponseDto responseDto = runGoalService.getRunGoal(runGoalId);
+        return ResponseEntity.ok(responseDto);
     }
 
     /**
      * 러닝 목표 생성
      */
-    @PostMapping
-    public ResponseEntity<RunGoalResponseDto> createRunGoal(@LoginUser Long loginId, @RequestBody RunGoalRequestDto runGoalRequestDto) {
-        RunGoalResponseDto runGoal = runGoalService.createRunGoal(loginId, runGoalRequestDto);
-        return ResponseEntity.status(201).body(runGoal);
+    public ResponseEntity<RunGoalResponseDto> createRunGoal(@RequestBody RunGoalRequestDto runGoalRequestDto) {
+        RunGoalResponseDto responseDto = runGoalService.createRunGoal(runGoalRequestDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
     /**
      * 러닝 목표 수정
      */
     @PutMapping("/{runGoalId}")
-    public ResponseEntity<RunGoalResponseDto> updateRunGoal(
-        @PathVariable Long runGoalId, @RequestBody RunGoalRequestDto runGoalRequestDto) {
-        RunGoalResponseDto runGoal = runGoalService.updateRunGoal(runGoalId, runGoalRequestDto);
-        return ResponseEntity.ok(runGoal);
+    public ResponseEntity<RunGoalResponseDto> updateRunGoal(@PathVariable Long runGoalId, @RequestBody RunGoalRequestDto updatedRunGoalDto) {
+        RunGoalResponseDto responseDto = runGoalService.updateRunGoal(runGoalId, updatedRunGoalDto);
+        return ResponseEntity.ok(responseDto);
     }
 
     /**
@@ -67,7 +66,7 @@ public class RunGoalController {
      */
     @DeleteMapping("/{runGoalId}")
     public ResponseEntity<Void> deleteRunGoal(@PathVariable Long runGoalId) {
-        runGoalService.deleteById(runGoalId);
+        runGoalService.deleteRunGoal(runGoalId);
         return ResponseEntity.noContent().build();
     }
 
