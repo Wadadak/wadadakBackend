@@ -1,18 +1,38 @@
 package com.example.runningservice.dto.runGoal;
 
-import lombok.AllArgsConstructor;
+import com.example.runningservice.entity.RunGoalEntity;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Getter
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
 public class RunGoalRequestDto {
-    private Long userId;
-    private Double totalDistance = 0.0;
-    private String totalRunningTime = "00:00:00";
-    private String averagePace = "00:00";
-    private Integer runCount = 0;
+    private LocalDate startDate;
+    private LocalDate endDate;
+    private double targetDistance;
+    private double targetPace;
+    private int targetTime;
+
+    @Builder
+    public RunGoalRequestDto(LocalDate startDate, LocalDate endDate, double targetDistance, double targetPace, int targetTime) {
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.targetDistance = targetDistance;
+        this.targetPace = targetPace;
+        this.targetTime = targetTime;
+    }
+
+    public RunGoalEntity toEntity() {
+        return RunGoalEntity.builder()
+                .startDate(startDate)
+                .endDate(endDate)
+                .targetDistance(targetDistance)
+                .targetPace(targetPace)
+                .targetTime(targetTime)
+                .build();
+    }
 }
